@@ -1,0 +1,64 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{enumitem}
+\usepackage{pifont}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{fontawesome5}
+\usepackage{xeCJK}
+\usepackage{setspace}
+\usepackage{graphicx}  % 用于插入图片
+\usepackage{float}     % 控制图片位置
+\usepackage{fontspec}
+\setmainfont{Latin Modern Roman}
+\newfontfamily\emojifont{Segoe UI Emoji}  % Windows 可用，macOS 用 Apple Color Emoji
+\newcommand{\emoji}[1]{{\emojifont #1}}
+
+
+\setstretch{1.15}
+\hypersetup{colorlinks=true,urlcolor=blue}
+\titleformat{\section}{\large\bfseries}{}{0em}{}
+
+\begin{document}
+\pagestyle{empty}
+
+%----------------------------
+% Header
+%----------------------------
+\begin{minipage}{0.75\textwidth}
+  \textbf{\LARGE Haihua Huang  黄海桦} \\
+  \href{mailto:hhh937meow@gmail.com}{hhh937meow@gmail.com} \quad
+  \href{https://github.com/937miaow}{github.com/937miaow} \\
+  South China Normal University, School of Computer Science
+\end{minipage}
+\hfill
+\begin{minipage}{0.20\textwidth}
+  \centering
+  \includegraphics[width=2.8cm]{photo.jpg}
+\end{minipage}
+
+\vspace{1em}
+
+%----------------------------
+% Import Sections
+%----------------------------
+\input{sections/education.tex}
+
+\noindent\hrulefill
+
+\input{sections/coursework.tex}
+
+\noindent\hrulefill
+
+\input{sections/projects.tex}
+
+\noindent\hrulefill
+
+\input{sections/awards.tex}
+
+\noindent\hrulefill
+
+\input{sections/skills.tex}
+
+\end{document}
