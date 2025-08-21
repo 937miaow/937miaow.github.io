@@ -1,0 +1,404 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Multilingual E5 Text Embeddings | 937のBlog</title><meta name="author" content="hhh937meow"><meta name="copyright" content="hhh937meow"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="核心问题 (Problem) 现有的文本嵌入（Text Embedding）模型大多只在英文语料上进行训练，这极大地限制了它们在多语言场景下的应用。为了解决这一问题，微软的研究人员开发了一系列名为mE5（multilingual E5）的开源多语言文本嵌入模型，旨在提供在多种语言上都表现出色的高质量文本表示能力。  核心方法 (Method) 该论文的核心方法沿用了其英文版E5模型的两阶段训练流程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Multilingual E5 Text Embeddings">
+<meta property="og:url" content="https://937miaow.github.io/paper/Multilingual-E5-Text-Embeddings/index.html">
+<meta property="og:site_name" content="937のBlog">
+<meta property="og:description" content="核心问题 (Problem) 现有的文本嵌入（Text Embedding）模型大多只在英文语料上进行训练，这极大地限制了它们在多语言场景下的应用。为了解决这一问题，微软的研究人员开发了一系列名为mE5（multilingual E5）的开源多语言文本嵌入模型，旨在提供在多种语言上都表现出色的高质量文本表示能力。  核心方法 (Method) 该论文的核心方法沿用了其英文版E5模型的两阶段训练流程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://937miaow.github.io/img/avatar.jpg">
+<meta property="article:published_time" content="2025-08-21T06:24:58.000Z">
+<meta property="article:modified_time" content="2025-08-21T06:29:14.311Z">
+<meta property="article:author" content="hhh937meow">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="Embeddings">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://937miaow.github.io/img/avatar.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Multilingual E5 Text Embeddings",
+  "url": "https://937miaow.github.io/paper/Multilingual-E5-Text-Embeddings/",
+  "image": "https://937miaow.github.io/img/avatar.jpg",
+  "datePublished": "2025-08-21T06:24:58.000Z",
+  "dateModified": "2025-08-21T06:29:14.311Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "hhh937meow",
+      "url": "https://github.com/937miaow"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/22.png"><link rel="canonical" href="https://937miaow.github.io/paper/Multilingual-E5-Text-Embeddings/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Multilingual E5 Text Embeddings',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="/img/33.png" alt="Logo"><span class="site-name">937のBlog</span></a><a class="nav-page-title" href="/"><span class="site-name">Multilingual E5 Text Embeddings</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Multilingual E5 Text Embeddings</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-08-21T06:24:58.000Z" title="发表于 2025-08-21 14:24:58">2025-08-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-08-21T06:29:14.311Z" title="更新于 2025-08-21 14:29:14">2025-08-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/paper/">paper</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="核心问题-Problem"><strong>核心问题 (Problem)</strong></h2>
+<p>现有的文本嵌入（Text Embedding）模型大多只在英文语料上进行训练，这极大地限制了它们在多语言场景下的应用。为了解决这一问题，微软的研究人员开发了一系列名为<code>mE5</code>（multilingual E5）的开源多语言文本嵌入模型，旨在提供在多种语言上都表现出色的高质量文本表示能力。</p>
+<hr>
+<h2 id="核心方法-Method"><strong>核心方法 (Method)</strong></h2>
+<p>该论文的核心方法沿用了其英文版E5模型的两阶段训练流程：<strong>弱监督对比学习预训练</strong> + <strong>监督微调</strong>。此外，还引入了一个创新的**指令微调（instruction-tuned）**版本。</p>
+<h3 id="模型架构与初始化"><strong>模型架构与初始化</strong></h3>
+<p>研究人员发布了三种不同规模的模型，以平衡效果和效率：</p>
+<ul>
+<li><strong><code>mE5-small</code></strong>: 基于<code>multilingual-MiniLM</code>初始化。</li>
+<li><strong><code>mE5-base</code></strong>: 基于<code>xlm-roberta-base</code>初始化。</li>
+<li><strong><code>mE5-large</code></strong>: 基于<code>xlm-roberta-large</code>初始化。</li>
+</ul>
+<h3 id="第一阶段：弱监督对比学习预训练-Weakly-supervised-Contrastive-Pre-training"><strong>第一阶段：弱监督对比学习预训练 (Weakly-supervised Contrastive Pre-training)</strong></h3>
+<p>此阶段的目标是让模型从海量无标注或弱标注数据中学习通用的多语言文本表示。</p>
+<ul>
+<li>
+<p><strong>训练数据</strong>: 使用了从多个来源收集的约10亿个多语言文本对。这些数据对的形式多样，例如（章节标题，段落内容）、（问题，回答）、（标题，新闻正文）等。</p>
+<ul>
+<li>
+<p><strong>数据源构成 (见下表)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">数据源</th>
+<th style="text-align:left">样本量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Wikipedia</td>
+<td style="text-align:left">1.5亿</td>
+</tr>
+<tr>
+<td style="text-align:left">mC4</td>
+<td style="text-align:left">1.6亿</td>
+</tr>
+<tr>
+<td style="text-align:left">Multilingual CC News</td>
+<td style="text-align:left">1.6亿</td>
+</tr>
+<tr>
+<td style="text-align:left">NLLB</td>
+<td style="text-align:left">1.6亿</td>
+</tr>
+<tr>
+<td style="text-align:left">Reddit</td>
+<td style="text-align:left">1.6亿</td>
+</tr>
+<tr>
+<td style="text-align:left">S2ORC</td>
+<td style="text-align:left">5000万</td>
+</tr>
+<tr>
+<td style="text-align:left">Stackexchange</td>
+<td style="text-align:left">5000万</td>
+</tr>
+<tr>
+<td style="text-align:left">xP3</td>
+<td style="text-align:left">8000万</td>
+</tr>
+<tr>
+<td style="text-align:left">Misc. SBERT Data</td>
+<td style="text-align:left">1000万</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>总计</strong></td>
+<td style="text-align:left"><strong>约10亿</strong></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>训练目标</strong>: 采用标准的<strong>InfoNCE对比学习损失函数</strong>。对于一个给定的文本（锚点），模型需要将其对应的正例（如配对的标题和内容）的相似度拉近，同时将其与批次内所有其他不相关的文本（负例）的相似度推远。其数学公式如下：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="script">L</mi><mtext>InfoNCE</mtext></msub><mo>=</mo><mo>−</mo><mi>log</mi><mo>⁡</mo><mfrac><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mtext>sim</mtext><mo stretchy="false">(</mo><mi>q</mi><mo separator="true">,</mo><msub><mi>p</mi><mo lspace="0em" rspace="0em">+</mo></msub><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mtext>sim</mtext><mo stretchy="false">(</mo><mi>q</mi><mo separator="true">,</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp(\text{sim}(q, p_{+})/\tau)}{\sum_{i=1}^{N} \exp(\text{sim}(q, p_{i})/\tau)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">InfoNCE</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.5979em;vertical-align:-1.1709em;"></span><span class="mord">−</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.1288em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9812em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mopen">(</span><span class="mord text"><span class="mord">sim</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">exp</span><span class="mopen">(</span><span class="mord text"><span class="mord">sim</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2583em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">+</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.1709em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi></mrow><annotation encoding="application/x-tex">q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span></span></span></span> 是查询（query）文本的嵌入，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mo lspace="0em" rspace="0em">+</mo></msub></mrow><annotation encoding="application/x-tex">p_{+}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6389em;vertical-align:-0.2083em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2583em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">+</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span></span></span></span> 是其对应的正例（positive）文本的嵌入，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">p_{i}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 包含了正例和所有负例（in-batch negatives），<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi></mrow><annotation encoding="application/x-tex">\tau</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span> 是温度超参数，用于调节相似度分布的平滑度。</p>
+</li>
+</ul>
+<h3 id="第二阶段：监督微调-Supervised-Fine-tuning"><strong>第二阶段：监督微调 (Supervised Fine-tuning)</strong></h3>
+<p>在预训练之后，模型会在少量高质量的标注数据集上进行微调，以进一步提升其在特定任务上的表现。</p>
+<ul>
+<li>
+<p><strong>训练数据</strong>: 使用了约160万个来自不同任务的高质量标注数据对。</p>
+<ul>
+<li>
+<p><strong>数据源构成 (见下表)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">数据源</th>
+<th style="text-align:left">样本量（约）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">MS-MARCO Passage &amp; Document</td>
+<td style="text-align:left">57万</td>
+</tr>
+<tr>
+<td style="text-align:left">NQ, TriviaQA, SQUAD</td>
+<td style="text-align:left">22万</td>
+</tr>
+<tr>
+<td style="text-align:left">NLI</td>
+<td style="text-align:left">27.5万</td>
+</tr>
+<tr>
+<td style="text-align:left">ELI5</td>
+<td style="text-align:left">10万</td>
+</tr>
+<tr>
+<td style="text-align:left">NLLB</td>
+<td style="text-align:left">10万</td>
+</tr>
+<tr>
+<td style="text-align:left">DuReader Retrieval</td>
+<td style="text-align:left">8.6万</td>
+</tr>
+<tr>
+<td style="text-align:left">Fever</td>
+<td style="text-align:left">7万</td>
+</tr>
+<tr>
+<td style="text-align:left">HotpotQA</td>
+<td style="text-align:left">7万</td>
+</tr>
+<tr>
+<td style="text-align:left">Quora Duplicate Questions</td>
+<td style="text-align:left">1.5万</td>
+</tr>
+<tr>
+<td style="text-align:left">Mr. TyDi</td>
+<td style="text-align:left">5万</td>
+</tr>
+<tr>
+<td style="text-align:left">MIRACL</td>
+<td style="text-align:left">4万</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>总计</strong></td>
+<td style="text-align:left"><strong>约160万</strong></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>优化技巧</strong>: 除了使用批内负例外，此阶段还引入了<strong>难负例挖掘（mined hard negatives）<strong>和来自交叉编码器（cross-encoder）模型的</strong>知识蒸馏（knowledge distillation）</strong>，以增强嵌入的判别能力。</p>
+</li>
+</ul>
+<h3 id="指令微调模型-Instruction-Tuned-Model"><strong>指令微调模型 (Instruction-Tuned Model)</strong></h3>
+<p>为了让模型能更好地理解任务意图，研究者还训练了一个特殊的指令微调模型<code>mE5-large-instruct</code>。</p>
+<ul>
+<li><strong>核心思想</strong>: 在输入文本前加入描述任务的自然语言指令（如“检索相关的段落”），让模型根据指令生成更具任务针对性的嵌入。</li>
+<li><strong>特殊数据</strong>: 在监督微调的数据基础上，额外加入了由GPT-3.5/4生成的50万个合成数据。这些数据包含了15万个独特的指令，覆盖了93种语言，极大地增强了模型的泛化能力和多语言能力。</li>
+</ul>
+<hr>
+<h2 id="基线模型-Baseline"><strong>基线模型 (Baseline)</strong></h2>
+<p>论文在多个基准上与当时最先进的多语言和单语言（英文）模型进行了对比。</p>
+<ul>
+<li><strong>英文能力基准 (MTEB)</strong>:
+<ul>
+<li><code>LaBSE</code>: 一个专门在翻译对上训练的多语言模型。</li>
+<li><code>Cohere-multilingual-v3</code>: 商业化的多语言模型。</li>
+<li><code>BGE-large-en-v1.5</code>: 当时一个表现很强的纯英文模型。</li>
+</ul>
+</li>
+<li><strong>多语言检索基准 (MIRACL)</strong>:
+<ul>
+<li><code>BM25</code>: 传统的稀疏检索算法。</li>
+<li><code>mDPR</code>: 一个在MIRACL训练集上微调过的稠密检索模型。</li>
+</ul>
+</li>
+<li><strong>双语文本挖掘 (Bitext Mining)</strong>:
+<ul>
+<li><code>mContriever</code>: 一个基于对比学习的检索模型。</li>
+<li><code>LaBSE</code>: 在该任务上表现出色的强基线。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="数据集-Datasets"><strong>数据集 (Datasets)</strong></h2>
+<p><strong>训练数据集</strong>:</p>
+<ul>
+<li><strong>预训练阶段</strong>: 详细构成见上方“核心方法”部分的表格，总量约为10亿对。</li>
+<li><strong>微调阶段</strong>: 详细构成见上方“核心方法”部分的表格，总量约为160万对。<code>mE5-large-instruct</code>额外使用了50万合成数据。</li>
+</ul>
+<p><strong>评估基准 (Evaluation Benchmarks)</strong>:</p>
+<ul>
+<li><strong>MTEB (Massive Text Embedding Benchmark)</strong>: 用于评估模型在英文世界的综合能力，涵盖了分类、聚类、排序、检索、语义相似度等多种任务（共56个数据集）。</li>
+<li><strong>MIRACL (Multilingual Information Retrieval Across a Continuum of Languages)</strong>: 一个多语言检索基准，论文中评估了其在16种不同语言上的表现。</li>
+<li><strong>Bitext Mining</strong>: 跨语言相似度搜索任务，用于评估模型在没有词汇重叠情况下匹配语义相似句子的能力。使用了<code>BUCC 2018</code>（4种语言）和<code>Tatoeba</code>（112种语言）两个数据集。</li>
+</ul>
+<hr>
+<h2 id="可复现性-Reproducibility"><strong>可复现性 (Reproducibility)</strong></h2>
+<ul>
+<li><strong>代码与模型</strong>: 论文中明确指出模型权重和相关信息已在GitHub上公开发布：<code>https://github.com/microsoft/unilm/tree/master/e5</code>。这使得社区可以轻松使用和复现这些模型。</li>
+<li><strong>算力与超参数</strong>:
+<ul>
+<li><strong>预训练</strong>: 使用了高达32,000的批处理大小（batch size），训练了30,000步。这需要非常强大的计算资源（通常是多机多卡的GPU集群）。</li>
+<li><strong>微调</strong>: 批处理大小为512，训练2个周期（epoch）。</li>
+<li><strong>学习率</strong>: 针对不同尺寸的模型和不同训练阶段设置了不同的学习率（预训练为<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><mn>3</mn><mo separator="true">,</mo><mn>2</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">}</mo><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\{3,2,1\}\times10^{-4}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">3</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">2</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">}</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">4</span></span></span></span></span></span></span></span></span></span></span></span>，微调为<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><mn>3</mn><mo separator="true">,</mo><mn>2</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">}</mo><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\{3,2,1\}\times10^{-5}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">3</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">2</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">}</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">5</span></span></span></span></span></span></span></span></span></span></span></span>，分别对应small/base/large模型）。</li>
+<li><strong>复现门槛</strong>: 普通研究者或开发者可以轻松下载模型进行微调和推理，但从头开始复现整个预训练过程的成本极高。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="可改进的几个点-Potential-Improvements"><strong>可改进的几个点 (Potential Improvements)</strong></h2>
+<ol>
+<li><strong>合成数据的质量与偏差</strong>: <code>mE5-large-instruct</code>的卓越性能部分归功于GPT生成的合成数据。然而，这些数据可能继承了大型语言模型的偏见或事实性错误，对其进行更深入的分析和清洗可能会进一步提升模型鲁棒性。</li>
+<li><strong>对极低资源语言的覆盖</strong>: 尽管模型覆盖了超过100种语言，但对于那些在预训练数据中出现频率极低的语言，其性能可能仍然有限。未来的工作可以探索如何通过迁移学习或更有效的数据采样策略来提升这些语言的效果。</li>
+<li><strong>模型效率与压缩</strong>: 论文提到了小尺寸模型在效率上的优势，但性能有所牺牲。可以进一步研究模型压缩技术（如量化、剪枝）来减小<code>mE5-large</code>模型的存储和推理开销，同时尽可能保持其高性能。</li>
+<li><strong>指令的泛化能力</strong>: 指令微调是一个很有前景的方向。可以探索更复杂、更多样化的指令形式，甚至让模型能理解零样本（zero-shot）的未知指令，从而提升其在更广泛任务上的泛化能力。</li>
+<li><strong>跨语言知识的对齐</strong>: 虽然模型在多语言任务上表现出色，但其内部如何对齐不同语言的语义空间仍值得深入探究。更显式地进行跨语言对齐（cross-lingual alignment）的训练或许能带来性能提升。</li>
+</ol>
+<hr>
+<h2 id="可以被引用的一些结论-Citable-Conclusions"><strong>可以被引用的一些结论 (Citable Conclusions)</strong></h2>
+<ol>
+<li><strong>两阶段训练范式的有效性</strong>: “弱监督对比学习预训练 + 监督微调”的训练范式是构建高性能多语言文本嵌入模型的有效路径。</li>
+<li><strong>指令微调的巨大潜力</strong>: 通过使用包含任务指令的合成数据进行微调，<code>mE5-large-instruct</code>模型的性能得到了显著提升，甚至在英文基准上超越了同等规模的强力纯英文模型（如<code>BGE-large-en-v1.5</code>）。</li>
+<li><strong>多语言能力的领先水平</strong>: 在多语言检索基准MIRACL上，mE5系列模型显著优于经过特定任务微调的<code>mDPR</code>模型。在跨语言文本匹配任务（Bitext Mining）上，<code>mE5-large-instruct</code>也超越了专为此类任务设计的<code>LaBSE</code>模型。</li>
+<li><strong>一个模型，多种用途</strong>: mE5模型不仅在多语言检索任务上表现优异，也在语义相似度、文本分类和聚类等多种NLP任务中展现出强大的、可迁移的特征提取能力。</li>
+<li><strong>开源模型的价值</strong>: 通过开源不同规模的mE5模型，该工作为学术界和工业界在多语言信息检索、检索增强生成（RAG）等领域提供了强大且易于使用的基础工具。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://github.com/937miaow">hhh937meow</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://937miaow.github.io/paper/Multilingual-E5-Text-Embeddings/">https://937miaow.github.io/paper/Multilingual-E5-Text-Embeddings/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://937miaow.github.io" target="_blank">937のBlog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/paper/">paper</a><a class="post-meta__tags" href="/tags/Embeddings/">Embeddings</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/paper/Unsupervised-Dense-Retrieval-with-Relevance-Aware-Contrastive-Pre-Training/" title="Unsupervised Dense Retrieval with Relevance-Aware Contrastive Pre-Training"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Unsupervised Dense Retrieval with Relevance-Aware Contrastive Pre-Training</div></div><div class="info-2"><div class="info-item-1">这是一篇关于如何改进无监督密集检索模型的论文。密集检索（Dense Retrieval）通过将查询（Query）和文档（Passage）都编码成向量，然后在向量空间中寻找最相似的文档来工作。 问题 (Problem) 传统的密集检索模型严重依赖大量的人工标注数据，这使得它们在新领域的应用成本高昂且泛化能力不足。 为了解决这个问题，研究界提出了无监督的对比预训练方法，例如 Contriever 模型。这类方法通过在无标签的文档中自动构建正样本对（例如，从同一篇文档中随机裁剪出两段文字作为“查询”和“相关文档”）来进行学习。 然而，这种自动构建的方式存在一个核心缺陷：“假正例”（False Positives）问题。如下图1所示，一篇文档中相邻的两个句子也可能在语义上毫不相关。如果模型被强制认为它们是相关的，就会学习到错误的表示，从而损害检索性能。  图1：论文中的一个例子，源自维基百科。高亮的两个句子虽然来自同一篇文章，但内容上几乎没有关联。随机裁剪很容易将它们构造成一个“假正例”对。 本文提出的 ReContriever 模型，旨在解决无监督预训练中的“假正例”问题。 方法 (M...</div></div></div></a><a class="pagination-related" href="/paper/Gecko-Versatile-Text-Embeddings-Distilled-from-Large-Language-Models/" title="Gecko: Versatile Text Embeddings Distilled from Large Language Models"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Gecko: Versatile Text Embeddings Distilled from Large Language Models</div></div><div class="info-2"><div class="info-item-1">问题 (Problem) 论文旨在解决当前文本嵌入模型领域的核心挑战：如何创建一个既紧凑又通用的文本嵌入模型。 现有方法存在以下痛点：  通用性差：许多模型在特定任务（如语义相似度）上表现优异，但在跨任务、跨领域（如信息检索、分类、聚类等）的泛化能力上表现不佳。 数据依赖严重：要构建一个覆盖多领域、多任务的通用模型，通常需要海量的、高质量的人工标注数据。这个过程不仅成本高昂、耗时费力，而且难以覆盖所有场景。 模型效率问题：为了追求高性能，模型往往变得越来越大（例如参数量超过70亿），嵌入维度也越来越高（例如超过4000维），这给实际部署和应用带来了巨大的计算和存储开销。  因此，本文的核心问题是：我们能在多大程度上直接利用大型语言模型（LLM）中蕴含的丰富世界知识，来蒸馏出一个紧凑、高效且在多种任务上都表现出色的通用文本嵌入模型？ 方法 (Method) 本文提出了 Gecko，一个通过两步式LLM知识蒸馏流程训练得到的文本嵌入模型。其核心是创建了一个名为 FRet (Few-shot Prompted Retrieval dataset) 的高质量合成数据集。  FRet：两步...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/paper/Gecko-Versatile-Text-Embeddings-Distilled-from-Large-Language-Models/" title="Gecko: Versatile Text Embeddings Distilled from Large Language Models"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-08-21</div><div class="info-item-2">Gecko: Versatile Text Embeddings Distilled from Large Language Models</div></div><div class="info-2"><div class="info-item-1">问题 (Problem) 论文旨在解决当前文本嵌入模型领域的核心挑战：如何创建一个既紧凑又通用的文本嵌入模型。 现有方法存在以下痛点：  通用性差：许多模型在特定任务（如语义相似度）上表现优异，但在跨任务、跨领域（如信息检索、分类、聚类等）的泛化能力上表现不佳。 数据依赖严重：要构建一个覆盖多领域、多任务的通用模型，通常需要海量的、高质量的人工标注数据。这个过程不仅成本高昂、耗时费力，而且难以覆盖所有场景。 模型效率问题：为了追求高性能，模型往往变得越来越大（例如参数量超过70亿），嵌入维度也越来越高（例如超过4000维），这给实际部署和应用带来了巨大的计算和存储开销。  因此，本文的核心问题是：我们能在多大程度上直接利用大型语言模型（LLM）中蕴含的丰富世界知识，来蒸馏出一个紧凑、高效且在多种任务上都表现出色的通用文本嵌入模型？ 方法 (Method) 本文提出了 Gecko，一个通过两步式LLM知识蒸馏流程训练得到的文本嵌入模型。其核心是创建了一个名为 FRet (Few-shot Prompted Retrieval dataset) 的高质量合成数据集。  FRet：两步...</div></div></div></a><a class="pagination-related" href="/paper/ColBERTv2-Effective-and-Efficient-Retrieval-via-Lightweight-Late-Interaction/" title="ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-08-17</div><div class="info-item-2">ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction</div></div><div class="info-2"><div class="info-item-1">问题 (Problem) 传统的神经信息检索（Neural IR）模型主要分为两类，各自有明显的优缺点：   单向量（Single-Vector）模型:  工作方式: 将查询（query）和文档（document）分别编码成一个高维向量，然后通过计算这两个向量的点积来评估相关性。 优点: 存储开销小，检索速度快。 缺点: 表达能力有限且脆弱。模型需要将查询和文档的所有复杂语义关系压缩到一个单一的向量点积中，这对编码器提出了极高的要求。    晚期交互（Late Interaction）模型 (如 ColBERTv1):  工作方式: 将查询和文档的每个词元（token）都编码成一个向量，形成多向量表示。相关性计算分解为词元级别的计算，例如计算每个查询词元向量与所有文档词元向量的最大相似度之和 [: 20]。 优点: 效果好，表达能力强，因为它将复杂的匹配任务交给了交互机制，减轻了编码器的负担。 缺点: 空间占用巨大。由于需要为每个词元存储一个向量，其索引大小比单向量模型大一个数量级，这在网络规模的语料库上是难以接受的。    核心问题: 如何在保持晚期交互模型强大效果（Effec...</div></div></div></a><a class="pagination-related" href="/paper/Making-LLMs-A-Better-Foundation-For-Dense-Retrieval/" title="Making LLMs A Better Foundation For Dense Retrieval"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-08-21</div><div class="info-item-2">Making LLMs A Better Foundation For Dense Retrieval</div></div><div class="info-2"><div class="info-item-1">这篇论文的核心贡献是提出了一种名为 LLaRA (LLM adapted for dense RetrivAl) 的新方法，旨在解决大型语言模型（LLMs）在直接应用于稠密检索任务时的根本性问题。它通过一个高效的“事后适应”（post-hoc adaptation）阶段，显著提升了LLM作为检索模型基座（backbone）的能力。  问题 (Problem) 大型语言模型（LLMs）虽然在语义理解上能力强大，但其预训练方式与稠密检索的需求存在天然的“鸿沟” 。  LLM的预训练目标：LLM（如GPT系列）主要通过自回归的文本生成任务进行预训练，其目标是预测下一个词元（token）。这使得模型生成的文本嵌入（text embedding）更侧重于捕捉**局部和短期（local and near-future）**的语义信息，以便生成连贯的下文。 稠密检索的需求：稠密检索需要将查询（query）和文档（document）映射到一个语义空间中，并通过向量相似度来判断其相关性。这要求文本嵌入能够高度概括和表示**全局（global）**的语义信息 。 核心矛盾：直接使用LLM（尤其是de...</div></div></div></a><a class="pagination-related" href="/paper/How-to-Train-Your-DRAGON-Diverse-Augmentation-Towards-Generalizable-Dense-Retrieval/" title="How to Train Your DRAGON: Diverse Augmentation Towards Generalizable Dense Retrieval"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-08-17</div><div class="info-item-2">How to Train Your DRAGON: Diverse Augmentation Towards Generalizable Dense Retrieval</div></div><div class="info-2"><div class="info-item-1">问题 (Problem) 传统的稠密检索（Dense Retrieval, DR）模型普遍存在一个核心问题：在监督式评测和零样本（Zero-shot）评测之间存在明显的性能权衡（trade-off）。具体来说，一个在特定数据集（如 MS MARCO）上通过监督学习训练得很好的模型，在从未见过的新领域（零样本场景）上往往表现不佳，反之亦然。 如 Figure 1 所示，大多数现有的检索器（除了参数量巨大（4.8B）的 GTR-XXL）都分布在一条倾斜的直线上，显示了“监督式评测”得分（X轴）和“零样本评测”得分（Y轴）之间的负相关关系。当时的普遍观点认为，要打破这种权衡，必须大幅增加模型（如BERT-base）的容量。 本文的核心目标：挑战上述观点，证明在不增加模型大小（仍使用 BERT-base 级别）的前提下，通过一种更优的训练方法，可以训练出一个在监督式和零样本场景下均达到顶尖水平（State-of-the-Art, SOTA）的通用稠密检索器。 Figure 1 解读:   坐标轴:  X轴: Supervised evaluation (MS MARCO Dev: RR@...</div></div></div></a><a class="pagination-related" href="/paper/RAG-for-Knowledge-Intensive-NLP-Tasks/" title="RAG for Knowledge-Intensive NLP Tasks"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-08-12</div><div class="info-item-2">RAG for Knowledge-Intensive NLP Tasks</div></div><div class="info-2"><div class="info-item-1">1. 摘要与引言 (Abstract &amp; Introduction)   核心问题: 大型预训练语言模型（如BART, T5）虽然在参数中存储了大量事实知识，但在知识的精确访问和操作上能力有限 。它们无法轻易扩展或修正知识，其决策过程缺乏透明度，并且可能产生“幻觉”（即捏造事实）。   解决方案: 提出一种名为 RAG (Retrieval-Augmented Generation) 的通用模型框架，它将预训练的参数化记忆（一个seq2seq模型）与非参数化记忆（一个可通过神经检索器访问的密集向量索引，如维基百科）相结合 。   模型构成: RAG模型包含一个预训练的seq2seq生成器（BART）和一个预训练的密集段落检索器（DPR）。   主要贡献:   在三个开放域问答任务上取得了最先进的（SOTA）成果 。   在语言生成任务上，RAG比纯参数化模型生成的内容更具体、更多样、更符合事实 。   展示了通过替换非参数化记忆（文档索引）来有效更新模型世界知识的能力 。      2. 方法 (Methods)   整体架构 (Figure 1):    输入查询 (x...</div></div></div></a><a class="pagination-related" href="/paper/Unsupervised-Dense-Retrieval-with-Relevance-Aware-Contrastive-Pre-Training/" title="Unsupervised Dense Retrieval with Relevance-Aware Contrastive Pre-Training"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="fas fa-history fa-fw"></i> 2025-08-19</div><div class="info-item-2">Unsupervised Dense Retrieval with Relevance-Aware Contrastive Pre-Training</div></div><div class="info-2"><div class="info-item-1">这是一篇关于如何改进无监督密集检索模型的论文。密集检索（Dense Retrieval）通过将查询（Query）和文档（Passage）都编码成向量，然后在向量空间中寻找最相似的文档来工作。 问题 (Problem) 传统的密集检索模型严重依赖大量的人工标注数据，这使得它们在新领域的应用成本高昂且泛化能力不足。 为了解决这个问题，研究界提出了无监督的对比预训练方法，例如 Contriever 模型。这类方法通过在无标签的文档中自动构建正样本对（例如，从同一篇文档中随机裁剪出两段文字作为“查询”和“相关文档”）来进行学习。 然而，这种自动构建的方式存在一个核心缺陷：“假正例”（False Positives）问题。如下图1所示，一篇文档中相邻的两个句子也可能在语义上毫不相关。如果模型被强制认为它们是相关的，就会学习到错误的表示，从而损害检索性能。  图1：论文中的一个例子，源自维基百科。高亮的两个句子虽然来自同一篇文章，但内容上几乎没有关联。随机裁剪很容易将它们构造成一个“假正例”对。 本文提出的 ReContriever 模型，旨在解决无监督预训练中的“假正例”问题。 方法 (M...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">hhh937meow</div><div class="author-info-description">Ciallo～(∠・ω< )⌒★!</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">18</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/937miaow"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/937miaow" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:hhh937meow@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Ciallo～(∠・ω< )⌒★!</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98-Problem"><span class="toc-number">1.</span> <span class="toc-text">核心问题 (Problem)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95-Method"><span class="toc-number">2.</span> <span class="toc-text">核心方法 (Method)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">2.1.</span> <span class="toc-text">模型架构与初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%BC%B1%E7%9B%91%E7%9D%A3%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0%E9%A2%84%E8%AE%AD%E7%BB%83-Weakly-supervised-Contrastive-Pre-training"><span class="toc-number">2.2.</span> <span class="toc-text">第一阶段：弱监督对比学习预训练 (Weakly-supervised Contrastive Pre-training)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%9B%91%E7%9D%A3%E5%BE%AE%E8%B0%83-Supervised-Fine-tuning"><span class="toc-number">2.3.</span> <span class="toc-text">第二阶段：监督微调 (Supervised Fine-tuning)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%87%E4%BB%A4%E5%BE%AE%E8%B0%83%E6%A8%A1%E5%9E%8B-Instruction-Tuned-Model"><span class="toc-number">2.4.</span> <span class="toc-text">指令微调模型 (Instruction-Tuned Model)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%BA%BF%E6%A8%A1%E5%9E%8B-Baseline"><span class="toc-number">3.</span> <span class="toc-text">基线模型 (Baseline)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86-Datasets"><span class="toc-number">4.</span> <span class="toc-text">数据集 (Datasets)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E5%A4%8D%E7%8E%B0%E6%80%A7-Reproducibility"><span class="toc-number">5.</span> <span class="toc-text">可复现性 (Reproducibility)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E6%94%B9%E8%BF%9B%E7%9A%84%E5%87%A0%E4%B8%AA%E7%82%B9-Potential-Improvements"><span class="toc-number">6.</span> <span class="toc-text">可改进的几个点 (Potential Improvements)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E4%BB%A5%E8%A2%AB%E5%BC%95%E7%94%A8%E7%9A%84%E4%B8%80%E4%BA%9B%E7%BB%93%E8%AE%BA-Citable-Conclusions"><span class="toc-number">7.</span> <span class="toc-text">可以被引用的一些结论 (Citable Conclusions)</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/paper/Gecko-Versatile-Text-Embeddings-Distilled-from-Large-Language-Models/" title="Gecko: Versatile Text Embeddings Distilled from Large Language Models">Gecko: Versatile Text Embeddings Distilled from Large Language Models</a><time datetime="2025-08-21T11:13:57.000Z" title="发表于 2025-08-21 19:13:57">2025-08-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/paper/Multilingual-E5-Text-Embeddings/" title="Multilingual E5 Text Embeddings">Multilingual E5 Text Embeddings</a><time datetime="2025-08-21T06:24:58.000Z" title="发表于 2025-08-21 14:24:58">2025-08-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/paper/Unsupervised-Dense-Retrieval-with-Relevance-Aware-Contrastive-Pre-Training/" title="Unsupervised Dense Retrieval with Relevance-Aware Contrastive Pre-Training">Unsupervised Dense Retrieval with Relevance-Aware Contrastive Pre-Training</a><time datetime="2025-08-18T17:11:29.000Z" title="发表于 2025-08-19 01:11:29">2025-08-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/paper/How-to-Train-Your-DRAGON-Diverse-Augmentation-Towards-Generalizable-Dense-Retrieval/" title="How to Train Your DRAGON: Diverse Augmentation Towards Generalizable Dense Retrieval">How to Train Your DRAGON: Diverse Augmentation Towards Generalizable Dense Retrieval</a><time datetime="2025-08-17T06:32:09.000Z" title="发表于 2025-08-17 14:32:09">2025-08-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/paper/ColBERTv2-Effective-and-Efficient-Retrieval-via-Lightweight-Late-Interaction/" title="ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction">ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction</a><time datetime="2025-08-16T16:07:12.000Z" title="发表于 2025-08-17 00:07:12">2025-08-17</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By hhh937meow</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.3</a></span></div><div class="footer_custom_text">Hi, welcome to my <a href="https://937miaow.github.io">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css')
+    if (true) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
